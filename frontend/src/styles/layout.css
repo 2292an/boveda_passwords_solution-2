@@ -1,0 +1,16 @@
+:root { font-family: Inter, system-ui, Arial, sans-serif; background: #f4f6f8; color: #1c2733; }
+body { margin: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+.shell { max-width: 980px; margin: 0 auto; padding: 32px 20px 60px; }
+h1 { margin-bottom: 4px; }
+.subtitle { color: #52606d; margin-top: 0; }
+.card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 22px; margin-top: 20px; box-shadow: 0 4px 16px rgba(0,0,0,.05); }
+.message { margin-top: 16px; padding: 12px; background: #e7f5ec; border-radius: 8px; }
+.shell { width: 100%; }
+h1 { font-size: clamp(1.65rem, 4vw, 2.4rem); overflow-wrap: anywhere; }
+h2 { font-size: clamp(1.2rem, 3vw, 1.5rem); }
+.subtitle, .message { overflow-wrap: anywhere; }
+@media (max-width: 650px) {
+  .shell { padding: 20px 12px 36px; }
+  .card { padding: 16px; margin-top: 16px; }
+}

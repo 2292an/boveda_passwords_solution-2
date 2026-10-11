@@ -8,13 +8,14 @@
     "build": "tsc --noEmit && vite build"
   },
   "dependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest"
-  },
-  "devDependencies": {}
+    "react-hook-form": "^7.89.0",
+    "react-router-dom": "^7.18.4",
+    "typescript": "latest",
+    "vite": "latest"
+  }
 }

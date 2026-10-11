@@ -1,0 +1,15 @@
+form { display: flex; gap: 10px; flex-wrap: wrap; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+input { min-width: 0; padding: 11px 12px; border: 1px solid #bcccdc; border-radius: 8px; font: inherit; }
+button { padding: 10px 14px; border: 0; border-radius: 8px; background: #116530; color: white; font-weight: 700; cursor: pointer; }
+@media (max-width: 650px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  form > .field, form > button { width: 100%; }
+}
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field-error { color: #a32121; font-size: .9rem; margin: 6px 0 0; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+input { width: 100%; font-size: 1rem; }
+button { min-height: 44px; }
+form > .field { flex: 1 1 240px; }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #116530; outline-offset: 3px; }
