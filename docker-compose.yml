@@ -1,0 +1,15 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: vault-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "VaultDemo_2026!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - vault_sql_data:/var/opt/mssql
+
+volumes:
+  vault_sql_data:
+    name: vault_sql_data
