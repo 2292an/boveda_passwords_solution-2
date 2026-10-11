@@ -1,93 +1,157 @@
-# Bóveda Segura de Contraseñas
+# Guía paso a paso para completar y demostrar la tarea
 
-Solución académica para la actividad “Bóveda segura de contraseñas cifradas”.
+## Fase 0 — Instalar herramientas
 
-## Stack
-- SQL Server 2022 en Docker
-- DBeaver para inspección de la base de datos
-- ASP.NET Core 10 Web API (C#)
-- React + TypeScript + Vite
-- AES-256-GCM para cifrado reversible de secretos
-- PBKDF2-SHA256 (600,000 iteraciones) para derivar la clave AES desde la contraseña maestra
-- bcrypt (work factor 12) para validar la contraseña maestra sin almacenarla en texto plano
+Necesita:
 
-## 1. Levantar SQL Server
-```bash
-docker compose up -d
+- Docker Desktop (Windows) o Docker Engine (Linux)
+- DBeaver Community
+- .NET 10 SDK
+- Node.js 20+ y npm
+- Git
+
+## Fase 1 — SQL Server en Docker
+
+1. Abra una terminal en la carpeta raíz del proyecto.
+2. Ejecute:
+   ```bash
+   docker compose up -d
+   ```
+3. Verifique:
+   ```bash
+   docker ps
+   ```
+4. Debe aparecer el contenedor `vault-sqlserver`.
+
+## Fase 2 — Conectar DBeaver y crear la base
+
+1. DBeaver → New Database Connection → SQL Server.
+2. Host: `localhost`.
+3. Port: `1433`.
+4. User: `sa`.
+5. Password: `VaultDemo_2026!`.
+6. Marque Trust server certificate si el driver lo solicita.
+7. Test Connection.
+8. Abra SQL Editor y ejecute `sql/schema.sql`.
+9. Refresque el árbol de bases y confirme `VaultDb`.
+
+## Fase 3 — Backend
+
+1. Abra terminal:
+   ```bash
+   cd backend/VaultApi
+   dotnet restore
+   dotnet run --urls http://localhost:5000
+   ```
+2. Déjela abierta.
+
+## Fase 4 — Frontend
+
+1. Abra una segunda terminal:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+2. Abra `http://localhost:5173`.
+
+## Fase 5 — Configurar la bóveda
+
+1. En la primera pantalla escriba:
+   `Maestra-Demo-2026!`
+2. Pulse **Configurar bóveda**.
+3. La base guardará un hash bcrypt y un salt, no la contraseña maestra original.
+
+### Evidencia opcional
+
+En DBeaver:
+
+```sql
+USE VaultDb;
+SELECT * FROM dbo.VaultSettings;
 ```
 
-Credenciales de laboratorio:
-- Host: localhost
-- Puerto: 1433
-- Usuario: sa
-- Contraseña: VaultDemo_2026!
+Captura mostrando `MasterPasswordHash` y `KdfSalt`.
+![alt text](image.png)
 
-> Esta contraseña es solo para la instancia SQL de laboratorio, no es la contraseña maestra de la bóveda.
+## Fase 6 — Registrar cinco credenciales ficticias
 
-## 2. Crear la base con DBeaver
-1. Crear conexión SQL Server a localhost:1433.
-2. Autenticarse con `sa` / `VaultDemo_2026!`.
-3. Abrir SQL Editor.
-4. Ejecutar `sql/schema.sql` completo.
-5. Refrescar y verificar `VaultDb` con tablas `Credentials` y `VaultSettings`.
+Utilice siempre la contraseña maestra `Maestra-Demo-2026!` al guardar.
 
-## 3. Backend C#
-Requiere .NET 10 SDK.
+1. Correo Demo | ana.demo | `Correo#Demo2026`
+2. GitLab Demo | dev.demo | `GitLab!Test55`
+3. Banco Ficticio | cliente.001 | `Banco$Falso88`
+4. Nube Demo | nube.demo | `Cloud-Demo-77!`
+5. Universidad Demo | estudiante.demo | `AulaVirtual#42`
 
-```bash
-cd backend/VaultApi
-dotnet restore
-dotnet run --urls http://localhost:5000
-```
+## Fase 7 — Prueba 1: guardado
 
-## 4. Frontend React
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Abrir http://localhost:5173
+Después de cada registro la interfaz debe indicar que la credencial fue almacenada cifrada.
+Tome una captura de la lista con las contraseñas ocultas.
+![alt text](image-1.png)
 
-## 5. Contraseña maestra sugerida para la demostración
-`Maestra-Demo-2026!`
+## Fase 8 — Prueba 2: inspección directa
 
-No usar contraseñas reales.
+En DBeaver ejecute:
 
-## 6. Cinco credenciales ficticias sugeridas
-| Servicio | Usuario | Contraseña |
-|---|---|---|
-| Correo Demo | ana.demo | Correo#Demo2026 |
-| GitLab Demo | dev.demo | GitLab!Test55 |
-| Banco Ficticio | cliente.001 | Banco$Falso88 |
-| Nube Demo | nube.demo | Cloud-Demo-77! |
-| Universidad Demo | estudiante.demo | AulaVirtual#42 |
-
-## 7. Inspección en DBeaver
-Ejecutar:
 ```sql
 USE VaultDb;
 SELECT Id, Service, Username, CipherText, Nonce, AuthTag, CreatedAtUtc
 FROM dbo.Credentials;
 ```
 
-El campo `CipherText` no debe coincidir con la contraseña ficticia original.
+Compruebe, por ejemplo, que `Correo#Demo2026` NO aparece en `CipherText`.
+Tome la captura principal solicitada.
+![alt text](image-2.png)
 
-Para comprobar que la contraseña maestra tampoco está en texto plano:
-```sql
-SELECT Id, MasterPasswordHash, KdfSalt, CreatedAtUtc
-FROM dbo.VaultSettings;
+## Fase 9 — Prueba 3: descifrado correcto
+
+1. Mantenga `Maestra-Demo-2026!` en el campo de contraseña maestra del formulario.
+2. En la fila “Correo Demo”, pulse **Descifrar**.
+3. Debe aparecer `Correo#Demo2026`.
+4. Tome captura.
+   ![alt text](image-3.png)
+
+## Fase 10 — Prueba 4: contraseña maestra incorrecta
+
+1. Cambie el campo de contraseña maestra por `Incorrecta-123!`.
+2. Pulse **Descifrar** sobre cualquier fila.
+3. Debe mostrarse `Contraseña maestra incorrecta.` y NO debe revelarse el secreto.
+4. Tome captura.
+   ![alt text](image-4.png)
+
+## Fase 11 — Prueba 5: persistencia
+
+1. Detenga backend y frontend con Ctrl+C.
+2. Vuelva a ejecutar backend y frontend.
+3. Recargue `http://localhost:5173`.
+4. Las cinco credenciales deben seguir listadas.
+5. En DBeaver siguen presentes porque el contenedor usa el volumen `vault_sql_data`.
+6. Tome captura.
+   ![alt text](image-5.png)
+   ![alt text](image-6.png)
+
+## Fase 12 — Preparar GitHub
+
+Desde la raíz:
+
+```bash
+git init
+git add .
+git commit -m "Implementa bóveda segura de contraseñas"
+git branch -M main
+git remote add origin URL_DE_SU_REPOSITORIO
+git push -u origin main
 ```
 
-## 8. Pruebas obligatorias
-1. Registrar una credencial: debe confirmarse el guardado.
-2. Abrir DBeaver: `CipherText` no coincide con la contraseña original.
-3. Descifrado correcto: escribir `Maestra-Demo-2026!` y pulsar Descifrar.
-4. Contraseña incorrecta: usar `Incorrecta-123!`; debe rechazarse.
-5. Persistencia: cerrar frontend/backend, volver a ejecutar y comprobar que las entradas siguen en SQL Server.
+Luego copie el enlace en la sección A de `Plantilla_Entrega_Resuelta.md`.
 
-## 9. Evidencias sugeridas
-- Captura de DBeaver con `CipherText`, `Nonce` y `AuthTag` visibles.
-- Captura del frontend mostrando una entrada antes de descifrar.
-- Captura del secreto recuperado con la contraseña maestra correcta.
-- Captura del error al usar contraseña maestra incorrecta.
-- Captura tras reiniciar la aplicación donde las credenciales siguen disponibles.
+## Fase 13 — Qué explicar en clase
+
+En máximo cinco bloques:
+
+1. Stack: Docker + SQL Server + DBeaver + ASP.NET Core + React.
+2. AES-256-GCM para cifrado reversible; bcrypt para validación de maestra; PBKDF2 para derivar clave.
+3. Mostrar DBeaver y probar que `CipherText` no contiene la contraseña original.
+4. Descifrar con la maestra correcta y fallar con una incorrecta.
+5. Explicar limitaciones: HTTPS, KMS/HSM, rotación de claves, control de intentos y auditoría.
